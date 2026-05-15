@@ -37,3 +37,13 @@ jobs:
           git add output/ data/
           git diff --cached --quiet || git commit -m "daily digest $(date -u +%Y-%m-%d)"
           git push
+          
+       - name: 推送日报到微信
+         env:
+           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+         run: |
+           CONTENT=$(cat output/daily-digest-*.md 2>/dev/null || echo "日报生成失败")
+           curl -G "http://pushplus.hxtrip.com/send" \
+             --data-urlencode "token=$PUSHPLUS_TOKEN" \
+             --data-urlencode "title=每日AI资讯日报" \
+             --data-urlencode "content=$CONTENT"
